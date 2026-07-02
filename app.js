@@ -29,8 +29,9 @@ var PRESETS = [
   {k:'hoje',label:'Hoje'},{k:'ontem',label:'Ontem'},{k:'7d',label:'7 dias'},
   {k:'30d',label:'30 dias'},{k:'leads',label:'Período dos leads'},{k:'tudo',label:'Tudo'}
 ];
-var period = 'tudo';
+var period = 'tudo', customRange = null;
 function rangeFor(k){
+  if(k==='custom' && customRange) return customRange;
   if(k==='tudo')  return [minDate, maxDate];
   if(k==='hoje')  return [maxDate, maxDate];
   if(k==='ontem'){ var y=addDays(maxDate,-1); return [y,y]; }
@@ -256,8 +257,31 @@ function renderAdRank(rng){
 }
 
 /* =================== CHROME =================== */
-function renderPeriods(){ el('periods').innerHTML=PRESETS.map(function(p){return '<button data-k="'+p.k+'" class="'+(p.k===period?'on':'')+'">'+p.label+'</button>';}).join('');
-  Array.prototype.forEach.call(el('periods').querySelectorAll('button'),function(b){ b.addEventListener('click',function(){ period=b.getAttribute('data-k'); renderPeriods(); renderAll(); }); }); }
+function periodsHTML(){
+  return PRESETS.map(function(p){return '<button data-k="'+p.k+'" class="pbtn">'+p.label+'</button>';}).join('')
+    + '<span class="daterange" id="daterange"><span class="dr-l">De</span> <input type="date" id="dtDe" min="'+minDate+'" max="'+maxDate+'"> <span class="dr-l">até</span> <input type="date" id="dtAte" min="'+minDate+'" max="'+maxDate+'"></span>';
+}
+function syncPeriodUI(){
+  var rng=rangeFor(period);
+  Array.prototype.forEach.call(el('periods').querySelectorAll('.pbtn'),function(b){ b.classList.toggle('on', period===b.getAttribute('data-k')); });
+  var drEl=el('daterange'); if(drEl) drEl.classList.toggle('on', period==='custom');
+  var de=el('dtDe'), ate=el('dtAte'); if(de&&ate){ de.value=rng[0]; ate.value=rng[1]; }
+}
+function initPeriods(){
+  el('periods').innerHTML=periodsHTML();
+  Array.prototype.forEach.call(el('periods').querySelectorAll('.pbtn'),function(b){
+    b.addEventListener('click',function(){ period=b.getAttribute('data-k'); customRange=null; syncPeriodUI(); renderAll(); });
+  });
+  var de=el('dtDe'), ate=el('dtAte');
+  function onDate(){
+    var s=de.value, e=ate.value; if(!s||!e) return;
+    if(s>e){ var t=s; s=e; e=t; }
+    if(s<minDate) s=minDate; if(e>maxDate) e=maxDate;
+    customRange=[s,e]; period='custom'; syncPeriodUI(); renderAll();
+  }
+  de.addEventListener('change',onDate); ate.addEventListener('change',onDate);
+  syncPeriodUI();
+}
 function renderAll(){ var rng=rangeFor(period), a=aggDaily(rng), p=aggDaily(prevRange(rng)), days=daysInRange(rng);
   renderKpiCol(a,p); renderChartLeads(days); renderChartInvest(days); renderDaily(rng); renderTree(rng); renderScoreTab(a); }
 function activateTab(id){ Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.toggle('active',x.getAttribute('data-tab')===id);});
@@ -269,5 +293,5 @@ function initCoverage(){ el('updated').textContent=D.generatedAtBR||'—'; el('t
   el('coverage').innerHTML='Leads registrados: <b>'+fmtBR(D.leadDateMin||'')+' → '+fmtBR(D.leadDateMax||'')+'</b> · Tráfego/gasto: <b>'+fmtBR(minDate)+' → '+fmtBR(maxDate)+'</b> — a planilha de leads começa em '+fmtBR(D.leadDateMin||'')+'; em dias sem lead o CPL fica "—". Use "Período dos leads" p/ alinhar.'; }
 
 if(!daily.length && !grain.length){ el('coverage').innerHTML='<b>Sem dados.</b> Rode o build.ps1 para gerar o data.js.'; }
-else { initCoverage(); renderPeriods(); initTabs(); renderAll(); }
+else { initCoverage(); initPeriods(); initTabs(); renderAll(); }
 })();
