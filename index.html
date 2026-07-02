@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,700;0,800;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?t=20260702">
+<link rel="stylesheet" href="styles.css?t=20260702b">
 </head>
 <body>
 <div class="wrap">
@@ -31,38 +31,27 @@
 
   <nav class="tabs" id="tabs">
     <button class="tab active" data-tab="funil">Funil</button>
-    <button class="tab" data-tab="otim">Otimização</button>
     <button class="tab" data-tab="score">Leadscore</button>
   </nav>
 
   <!-- ============ FUNIL ============ -->
   <section class="panel-tab" id="tab-funil">
-    <div class="row-2">
-      <div class="card health">
-        <div class="card-h">Saúde geral do funil</div>
-        <div class="health-body">
-          <div id="healthGauge"></div>
-          <div class="health-legend" id="healthLegend"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-h">Funil do período</div>
-        <div id="funnel"></div>
+    <div class="funil-grid">
+      <div class="kpi-col" id="kpiCol"></div>
+      <div class="chart-col">
+        <div class="card"><div class="card-h">Leads x Qualificados por dia <span class="hint">qualificado = Leadscore A+B</span></div><div id="chartLeads"></div></div>
+        <div class="card"><div class="card-h">Investimento x CPL Qualificado por dia <span class="hint">barras = gasto · linha = CPL A+B</span></div><div id="chartInvest"></div></div>
       </div>
     </div>
 
-    <div class="kpis" id="kpis"></div>
-
     <div class="card">
-      <div class="card-h">Visão diária <span class="hint">gasto com imposto · leads e qualificados (A+B) por dia</span></div>
+      <div class="card-h">Visão diária <span class="hint">uma linha por dia (mais recente no topo) · cor mais forte = maior no período · CPL Qualif e CPM verde (bom) → vermelho (caro)</span></div>
       <div class="table-scroll"><table class="tbl" id="dailyTbl"></table></div>
     </div>
-  </section>
 
-  <!-- ============ OTIMIZAÇÃO ============ -->
-  <section class="panel-tab hidden" id="tab-otim">
     <div class="card">
-      <div class="card-h">Tabela de otimização <span class="hint">clique para abrir campanha → conjunto → anúncio · veja de onde vêm os Leadscore A e B</span></div>
+      <div class="card-h">Otimização — Campanha › Conjunto › Anúncio
+        <span class="hint">clique numa <b>campanha</b> p/ abrir os conjuntos, e num <b>conjunto</b> p/ abrir os anúncios · veja de onde vêm os Leadscore A e B</span></div>
       <div class="tree-legend" id="treeLegend"></div>
       <div class="table-scroll"><table class="tbl tree" id="treeTbl"></table></div>
     </div>
@@ -86,7 +75,7 @@
     </div>
 
     <div class="card">
-      <div class="card-h">Quem são os Qualificados (A + B) <span class="hint">perfil dos leads quentes/mornos</span></div>
+      <div class="card-h">Quem são os Qualificados (A + B) <span class="hint">perfil dos leads quentes/mornos · base completa</span></div>
       <div class="row-3" id="qualifBreak"></div>
     </div>
 
@@ -101,7 +90,7 @@
   </footer>
 </div>
 
-<script src="data.js?t=20260702145200"></script>
-<script src="app.js?t=20260702145200"></script>
+<script src="data.js?t=20260702b"></script>
+<script src="app.js?t=20260702b"></script>
 </body>
 </html>
