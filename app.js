@@ -110,6 +110,28 @@ function renderKpiCol(a, p){
 /* =================== CHARTS (SVG) =================== */
 function xticks(days){ var n=days.length; if(n<=1) return [0]; var step=Math.max(1,Math.round(n/7)); var t=[]; for(var i=0;i<n;i+=step)t.push(i); if(t[t.length-1]!==n-1)t.push(n-1); return t; }
 
+/* --- tooltip dos gráficos --- */
+var _tip=null;
+function tipEl(){ if(!_tip){ _tip=document.createElement('div'); _tip.className='chart-tip'; _tip.style.display='none'; document.body.appendChild(_tip); } return _tip; }
+function tipShow(html,x,y){ var t=tipEl(); t.innerHTML=html; t.style.display='block'; var w=t.offsetWidth,h=t.offsetHeight,nx=x+14,ny=y+14;
+  if(nx+w>window.innerWidth-8) nx=x-w-14; if(ny+h>window.innerHeight-8) ny=y-h-14; t.style.left=Math.max(6,nx)+'px'; t.style.top=Math.max(6,ny)+'px'; }
+function tipHide(){ if(_tip) _tip.style.display='none'; }
+function hitRects(days,pl,gw,pt,ph){ var s=''; for(var i=0;i<days.length;i++){ s+='<rect class="hit" data-i="'+i+'" x="'+(pl+gw*i).toFixed(1)+'" y="'+pt+'" width="'+gw.toFixed(1)+'" height="'+ph+'" fill="transparent" pointer-events="all"/>'; } return s; }
+function bindHits(containerId,days,fmt){ var c=el(containerId); if(!c) return;
+  Array.prototype.forEach.call(c.querySelectorAll('.hit'),function(r){
+    r.addEventListener('mousemove',function(e){ var i=+r.getAttribute('data-i'); if(days[i]) tipShow(fmt(days[i]),e.clientX,e.clientY); });
+    r.addEventListener('mouseleave',tipHide); }); }
+function tipLeads(d){ var q=d.A+d.B;
+  return '<div class="tt-d">'+fmtBR(d.date)+'</div>'
+    +'<div class="tt-r"><span style="color:#ff8fb2">Leads</span><b>'+intf(d.leads)+'</b></div>'
+    +'<div class="tt-r"><span style="color:#ff1e63">Qualificados A+B</span><b>'+intf(q)+'</b></div>'
+    +'<div class="tt-sub">A '+d.A+' · B '+d.B+' · C '+d.C+' · D '+d.D+'</div>'; }
+function tipInvest(d){ var q=d.A+d.B;
+  return '<div class="tt-d">'+fmtBR(d.date)+'</div>'
+    +'<div class="tt-r"><span style="color:var(--pink2)">Investimento</span><b>'+money0(d.spend)+'</b></div>'
+    +'<div class="tt-r"><span style="color:#ffab2e">CPL Qualificado</span><b>'+(q>0?money(dv(d.spend,q)):'—')+'</b></div>'
+    +'<div class="tt-sub">Leads '+intf(d.leads)+' · Qualif '+intf(q)+' · CPM '+money(dv(d.spend,d.impr)*1000)+'</div>'; }
+
 function renderChartLeads(days){
   var W=600,H=210,pl=30,pr=10,pt=12,pb=22,pw=W-pl-pr,ph=H-pt-pb,base=pt+ph;
   var maxL=Math.max.apply(null,days.map(function(d){return d.leads||0;}).concat([1]));
@@ -123,8 +145,9 @@ function renderChartLeads(days){
     if((d.A+d.B)>0) s+='<rect x="'+(xc+1).toFixed(1)+'" y="'+(base-qh).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+qh.toFixed(1)+'" rx="1.5" fill="#ff1e63"/>';
   });
   xticks(days).forEach(function(i){ var xc=pl+gw*i+gw/2; s+='<text x="'+xc.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" fill="#6d6d78" font-size="9">'+fmtBR(days[i].date)+'</text>'; });
-  s+='</svg>';
+  s+=hitRects(days,pl,gw,pt,ph)+'</svg>';
   el('chartLeads').innerHTML='<div class="chart">'+s+'</div><div class="chart-legend"><span><span class="dot" style="background:rgba(255,92,143,.6)"></span>Leads</span><span><span class="dot" style="background:#ff1e63"></span>Qualificados (A+B)</span></div>';
+  bindHits('chartLeads',days,tipLeads);
 }
 
 function renderChartInvest(days){
@@ -144,8 +167,9 @@ function renderChartInvest(days){
   if(pts.length>1){ var dpath='M'+pts.map(function(pp){return pp[0].toFixed(1)+' '+pp[1].toFixed(1);}).join(' L'); s+='<path d="'+dpath+'" fill="none" stroke="#ffab2e" stroke-width="2"/>'; }
   pts.forEach(function(pp){ s+='<circle cx="'+pp[0].toFixed(1)+'" cy="'+pp[1].toFixed(1)+'" r="2.6" fill="#ffab2e"/>'; });
   xticks(days).forEach(function(i){ var xc=pl+gw*i+gw/2; s+='<text x="'+xc.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" fill="#6d6d78" font-size="9">'+fmtBR(days[i].date)+'</text>'; });
-  s+='</svg>';
+  s+=hitRects(days,pl,gw,pt,ph)+'</svg>';
   el('chartInvest').innerHTML='<div class="chart">'+s+'</div><div class="chart-legend"><span><span class="dot" style="background:rgba(255,30,99,.5)"></span>Investimento</span><span><span class="ln" style="background:#ffab2e"></span>CPL Qualificado</span></div>';
+  bindHits('chartInvest',days,tipInvest);
 }
 
 /* =================== DAILY HEATMAP =================== */

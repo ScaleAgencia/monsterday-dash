@@ -96,6 +96,13 @@ b{font-weight:700}
 
 /* ---------- charts ---------- */
 .chart svg{width:100%;height:auto;display:block}
+.chart svg .hit{cursor:crosshair}
+.chart svg .hit:hover{fill:rgba(255,30,99,.07)}
+.chart-tip{position:fixed;z-index:60;pointer-events:none;background:#1c1c22;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:11.5px;box-shadow:0 8px 24px rgba(0,0,0,.55);min-width:150px}
+.chart-tip .tt-d{font-weight:800;color:var(--ink);margin-bottom:5px;font-size:12px}
+.chart-tip .tt-r{display:flex;justify-content:space-between;gap:16px;margin:2px 0}
+.chart-tip .tt-r b{color:var(--ink);font-weight:800}
+.chart-tip .tt-sub{margin-top:6px;color:var(--muted2);font-size:10.5px;border-top:1px solid var(--line);padding-top:5px}
 .chart-legend{display:flex;gap:16px;font-size:11.5px;color:var(--muted);margin-top:8px;justify-content:center}
 .chart-legend .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
 .chart-legend .ln{display:inline-block;width:14px;height:2px;margin-right:5px;vertical-align:middle}
